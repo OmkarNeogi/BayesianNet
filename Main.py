@@ -5,33 +5,29 @@ import scipy.stats as stats
 import math as math
 
 def calcCov(a,b):
-  oscar=np.cov(a,b)
-  result=oscar[0,1]
+  result  = np.cov(a,b)[0,1]
 
 def createMatrix2(unitv, matrix2):
-  main=[]
-  temp=[]
+  main = []
+  temp = []
   for i in range(0,49):
-    temp.append(unitv[i])
-    temp.append(matrix2[i])
+    temp.append(unitv[i]).append(matrix2[i])
     main.append(temp)
-    temp=[]
+    temp = []
   return main
 
 def BNGraph(child, main):
   #populate these values into one matrix
-  import numpy as np
-  import math as math
-  onerow=[]
-  temp=[0,0]
-  major=[0,0]
-  major=[]
+  onerow = []
+  temp   = [0,0]
+  major  = [0,0]
+  major  = []
   for row in range(0,2):
     for col in range(0,2):
       for index in range(0,49):
         temp[col]=temp[col]+(main[index][row]*main[index][col])
     major.append(temp)
-    temp=[0,0]
+    temp = [0,0]
   #calculated A
 
 
@@ -47,8 +43,8 @@ def BNGraph(child, main):
   beta=np.linalg.solve(major,y) 
   intermed=0
   for index in range(0,49):
-    intermed=intermed+ ( (beta[0]*main[index][0]) + (beta[1]*main[index][1])- child[index] )**2
-  intermed=intermed/49
+    intermed = intermed + ( (beta[0]*main[index][0]) + (beta[1]*main[index][1])- child[index] )**2
+  intermed = intermed/49
   #sigma square done
 
 
@@ -76,10 +72,7 @@ cs_score=[]
 res_over=[]
 admin_base=[]
 tuition=[]
-cov_matrix2=([[[],[],[],[]],
-  [[],[],[],[]],
-  [[],[],[],[]],
-  [[],[],[],[]]])
+cov_matrix2=([[[None]*4]*4])
 unitv=[1]*49
 #--------------------------------all declarations done above this line-------------------------------------------------
 while curr_row < num_rows:
@@ -102,110 +95,63 @@ while curr_row < num_rows:
     elif curr_cell==5:
       tuition.append(cell_value)
 
+
+#INDIVIDUAL CALCULATIONS:
 #mean
-mu1=np.mean(cs_score)
-mu2=np.mean(res_over)
-mu3=np.mean(admin_base)
-mu4=np.mean(tuition)
+mu1=math.ceil(np.mean(cs_score)*100)/100
+mu2=np.around(np.mean(res_over), decimals=2)
+mu3=np.around(np.mean(admin_base), decimals=2)
+mu4=np.around(np.mean(tuition), decimals=2)
 
-mu1=math.ceil(mu1*100)/100
-mu2=np.around(mu2, decimals=2)
-mu3=np.around(mu3, decimals=2)
-mu4=np.around(mu4, decimals=2)
+#variance
+mult = (49.0/48.0)
 
-#variance,
-var1=np.var(cs_score)
-var2=np.var(res_over)
-var3=np.var(admin_base)
-var4=np.var(tuition)
-
-var1=var1*(49.0/48.0)
-var2=var2*(49.0/48.0)
-var3=var3*(49.0/48.0)
-var4=var4*(49.0/48.0)
-
-var1=np.round(var1, decimals=2)
-var2=np.round(var2, decimals=2)
-var3=np.round(var3, decimals=2)
-var4=np.round(var4, decimals=2)
+var1=np.round(np.var(cs_score)*mult, decimals=2)
+var2=np.round(np.var(res_over)*mult, decimals=2)
+var3=np.round(np.var(admin_base)*mult, decimals=2)
+var4=np.round(np.var(tuition)*mult, decimals=2)
 
 #std deviation
-sigma1=np.std(cs_score)
-sigma2=np.std(res_over)
-sigma3=np.std(admin_base)
-sigma4=np.std(tuition)
+sigma1=np.round(np.std(cs_score), decimals=2)
+sigma2=np.round(np.std(res_over), decimals=2)
+sigma3=np.round(np.std(admin_base), decimals=2)
+sigma4=np.round(np.std(tuition), decimals=2)
 
-sigma1=np.round(sigma1, decimals=2)
-sigma2=np.round(sigma2, decimals=2)
-sigma3=np.round(sigma3, decimals=2)
-sigma4=np.round(sigma4, decimals=2)
 
+#THE BAYESIAN NET part:
 array_of_fields=['cs_score','res_over','admin_base','tuition']
 
 
 #CovarianceMatrix-------------------------------------------------------------------------------------
-covarianceMat=[[[],[],[],[]],  [[],[],[],[]],  [[],[],[],[]],  [[],[],[],[]]]
+covarianceMat = [[[None]*4]*4]
 
-X12 = np.vstack([cs_score,res_over])
-cov_12 = np.cov(X12)
+covarianceMat[0][0] = np.cov(np.vstack([cs_score,cs_score]))[0,1]
+covarianceMat[0][1] = np.cov(np.vstack([cs_score,res_over]))[0,1]
+covarianceMat[0][2] = np.cov(np.vstack([cs_score,admin_base]))[0,1]
+covarianceMat[0][3] = np.cov(np.vstack([cs_score,tuition]))[0,1]
 
-X13=np.vstack([cs_score,admin_base])
-cov_13 = np.cov(X13)
+covarianceMat[1][0] = np.cov(np.vstack([cs_score,res_over]))[0,1]
+covarianceMat[1][1] = np.cov(p.vstack([res_over,res_over]))[0,1]
+covarianceMat[1][2] = np.cov(np.vstack([res_over,admin_base]))[0,1]
+covarianceMat[1][3] = np.cov(np.vstack([res_over,tuition]))[0,1]
 
-X14=np.vstack([cs_score,tuition])
-cov_14 =np.cov(X14)
+covarianceMat[2][0] = np.cov(np.vstack([cs_score,admin_base]))[0,1]
+covarianceMat[2][1] = np.cov(np.vstack([res_over,admin_base]))[0,1]
+covarianceMat[2][2] = np.cov(.vstack([admin_base,admin_base]))[0,1]
+covarianceMat[2][3] = np.cov(np.vstack([admin_base,tuition]))[0,1]
 
-X23 = np.vstack([res_over,admin_base])
-cov_23 = np.cov(X23)
-
-X24=np.vstack([res_over,tuition])
-cov_24 = np.cov(X24)
-
-X34=np.vstack([admin_base,tuition])
-cov_34 =np.cov(X34)
-
-X11=np.vstack([cs_score,cs_score])
-X22=np.vstack([res_over,res_over])
-X33=np.vstack([admin_base,admin_base])
-X44=np.vstack([tuition,tuition])
-
-cov_11=np.cov(X11)
-cov_22=np.cov(X22)
-cov_33=np.cov(X33)
-cov_44=np.cov(X44)
-
-covarianceMat[0][0]=cov_11[0,1]
-covarianceMat[0][1]=cov_12[0,1]
-covarianceMat[0][2]=cov_13[0,1]
-covarianceMat[0][3]=cov_14[0,1]
-
-covarianceMat[1][0]=cov_12[0,1]
-covarianceMat[1][1]=cov_22[0,1]
-covarianceMat[1][2]=cov_23[0,1]
-covarianceMat[1][3]=cov_24[0,1]
-
-covarianceMat[2][0]=cov_13[0,1]
-covarianceMat[2][1]=cov_23[0,1]
-covarianceMat[2][2]=cov_33[0,1]
-covarianceMat[2][3]=cov_34[0,1]
-
-covarianceMat[3][0]=cov_14[0,1]
-covarianceMat[3][1]=cov_24[0,1]
-covarianceMat[3][2]=cov_34[0,1]
-covarianceMat[3][3]=cov_44[0,1]
+covarianceMat[3][0] = np.cov(np.vstack([cs_score,tuition]))[0,1]
+covarianceMat[3][1] = np.cov(np.vstack([res_over,tuition]))[0,1]
+covarianceMat[3][2] = np.cov(np.vstack([admin_base,tuition]))[0,1]
+covarianceMat[3][3] = np.cov(np.vstack([tuition,tuition]))[0,1]
 
 
-#PLOT the data points here
-# /covarianceMatrix------------------------------------------------------------------------
+correlation = np.corrcoef([cs_score, res_over, admin_base, tuition])
 
-correlationMat=[[[],[],[],[]],  [[],[],[],[]],  [[],[],[],[]],  [[],[],[],[]]]
-
-correlation=np.corrcoef([cs_score, res_over, admin_base, tuition])
-
-norm_cs=stats.norm.pdf(cs_score, loc=mu1, scale=sigma1)
-norm_res=stats.norm.pdf(res_over, loc=mu2, scale=sigma2)
-norm_admin=stats.norm.pdf(admin_base, loc=mu3, scale=sigma3)
-norm_tuition=stats.norm.pdf(tuition, loc=mu4, scale=sigma4)
+norm_cs      = stats.norm.pdf(cs_score, loc=mu1, scale=sigma1)
+norm_res     = stats.norm.pdf(res_over, loc=mu2, scale=sigma2)
+norm_admin   = stats.norm.pdf(admin_base, loc=mu3, scale=sigma3)
+norm_tuition = stats.norm.pdf(tuition, loc=mu4, scale=sigma4)
 
 ll1=0
 ll2=0
@@ -226,21 +172,17 @@ for iter in range (1, 5):
     for x in norm_tuition:
       ll4+=np.log(x)
 
-final=ll1+ll2+ll3+ll4
+final = ll1+ll2+ll3+ll4
 #final
 
-matrix1=[]
-matrix2=[]
-matrix3=[]  
+log1_csTOres     = BNGraph(res_over, createMatrix2(unitv, cs_score))
+log2_csTOtuit    = BNGraph(tuition, createMatrix2(unitv, tuition))
+log3_tuitTOadmin = BNGraph(admin_base, createMatrix2(unitv, tuition))
 
-matrix1=createMatrix2(unitv, cs_score)
-matrix2=createMatrix2(unitv, tuition)
+logLikelihood    = log1_csTOres + log2_csTOtuit + log3_tuitTOadmin + ll1
 
-log1_csTOres=BNGraph(res_over, matrix1)
-log2_csTOtuit=BNGraph(tuition, matrix1)
-log3_tuitTOadmin=BNGraph(admin_base, matrix2)
 
-logLikelihood=log1_csTOres+log2_csTOtuit+log3_tuitTOadmin+ll1
+
 
 # OUTPUT IN FORMAT EXPECTED:
 
