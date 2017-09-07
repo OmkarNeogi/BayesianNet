@@ -2,7 +2,6 @@
 import xlrd
 import numpy as np
 import scipy.stats as stats
-#import matplotlib.pyplot as plt
 import math as math
 
 def calcCov(a,b):
@@ -57,14 +56,13 @@ def BNGraph(child, main):
   for index in range(0,49):
     result=result+-0.5*math.log(intermed*2*22/7) - 0.5*(( (beta[0]*main[index][0]) + (beta[1]*main[index][1])  \
       - child[index] )**2)/intermed
-  #print "likelihood 2"
   return result
     #np.linalg.solve(a,y) you get beta
     #sigma square
     #then find the log likelihood
 
 #-------------------------------------------------------------------------------------------------------------
-#-----------------------------------------functions over here---------------------------------------------------------
+#-----------------------------------------functions over here-------------------------------------------------
 workbook = xlrd.open_workbook('/home/omkar/Downloads/university_data.xlsx')
 worksheet = workbook.sheet_by_name('university_data')
 
@@ -82,7 +80,7 @@ cov_matrix2=([[[],[],[],[]],
   [[],[],[],[]],
   [[],[],[],[]],
   [[],[],[],[]]])
-unitv=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+unitv=[1]*49
 #--------------------------------all declarations done above this line-------------------------------------------------
 while curr_row < num_rows:
   curr_row += 1
@@ -130,6 +128,7 @@ var1=np.round(var1, decimals=2)
 var2=np.round(var2, decimals=2)
 var3=np.round(var3, decimals=2)
 var4=np.round(var4, decimals=2)
+
 #std deviation
 sigma1=np.std(cs_score)
 sigma2=np.std(res_over)
@@ -203,21 +202,6 @@ correlationMat=[[[],[],[],[]],  [[],[],[],[]],  [[],[],[],[]],  [[],[],[],[]]]
 
 correlation=np.corrcoef([cs_score, res_over, admin_base, tuition])
 
-#print "correlation "
-#print correlation
-
-#plotting has been COMMENTED here
-#plt.plot(correlation)
-#plt.ylabel('oh yes')
-#plt.xlabel("x value")
-#plt.show()
-
-#-----------------------------------------------------------------------
-#norm_cs=np.array([],[],[],[])
-#norm_res=np.array([],[],[],[])
-#norm_admin=np.array([],[],[],[])
-#norm_tuition=np.array([],[],[],[])
-
 norm_cs=stats.norm.pdf(cs_score, loc=mu1, scale=sigma1)
 norm_res=stats.norm.pdf(res_over, loc=mu2, scale=sigma2)
 norm_admin=stats.norm.pdf(admin_base, loc=mu3, scale=sigma3)
@@ -258,46 +242,7 @@ log3_tuitTOadmin=BNGraph(admin_base, matrix2)
 
 logLikelihood=log1_csTOres+log2_csTOtuit+log3_tuitTOadmin+ll1
 
-# PLOTTING graph
-
-# plt.figure(num=1, figsize=(15,15), dpi=72)
-# plt.subplot(321)
-# plt.scatter(cs_score,res_over)
-# plt.ylabel("res_over")
-# plt.xlabel("cs_score")
-# plt.show()
-
-# plt.subplot(322)
-# plt.scatter(cs_score,admin_base)
-# plt.ylabel("admin_base")
-# plt.xlabel("cs_score")
-# plt.show()
-
-# plt.subplot(323)
-# plt.scatter(cs_score,tuition)
-# plt.ylabel("tuition")
-# plt.xlabel("cs_score")
-# plt.show()
-
-# plt.subplot(324)
-# plt.scatter(res_over,admin_base)
-# plt.ylabel("admin_base")
-# plt.xlabel("res_over")
-# plt.show()
-
-# plt.subplot(325)
-# plt.scatter(res_over,tuition)
-# plt.ylabel("tuition")
-# plt.xlabel("res_over")
-# plt.show()
-
-# plt.subplot(326)
-# plt.scatter(tuition,admin_base)
-# plt.ylabel("admin_base")
-# plt.xlabel("tuition")
-# plt.show()
-
-# OUTPUT IN FORMAT EXPECTED
+# OUTPUT IN FORMAT EXPECTED:
 
 print ("UBitName: omkargur")
 print ("personNumber: 50207630")
@@ -331,13 +276,3 @@ print (buntygraph)
 
 print ("BNlogLikelihood")
 print (logLikelihood)
-
-#plt.plot(correlation)
-#plt.ylabel('oh yes')
-#plt.xlabel("correlation")
-#plt.show()
-
-#plt.plot(np.asmatrix(covarianceMat))
-#plt.ylabel('oh yes')
-#plt.xlabel("correlation")
-#plt.show()
